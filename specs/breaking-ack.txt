@@ -1,0 +1,4 @@
+GET /claims removed the required property `items/amount` from the response with the `200` status
+POST /claims added the new required request property `amount_cents`
+POST /claims removed the required property `amount` from the response with the `201` status
+GET /claims/{claim_id} removed the required property `amount` from the response with the `200` status

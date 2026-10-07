@@ -1,0 +1,29 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - run: go install github.com/oasdiff/oasdiff@v1.33.0
+      - run: uv sync
+
+      - name: Committed specs match the code
+        run: make specs && git diff --exit-code specs/
+      - name: Committed client matches the spec
+        run: make client && git diff --exit-code client/
+      - name: Breaking-change gate (v1 -> v2)
+        run: make compat
+      - name: Show full changelog
+        if: always()
+        run: oasdiff changelog specs/v1.json specs/v2.json
+      - name: Tests (generated client vs running service)
+        run: make test
